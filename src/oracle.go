@@ -42,9 +42,38 @@ func main() {
 // The oracle also prints sporadic prophecies to stdout even without being asked.
 func Oracle() chan<- string {
 	questions := make(chan string)
-	// TODO: Answer questions.
-	// TODO: Make prophecies.
-	// TODO: Print answers.
+	answers := make(chan string)
+
+	// Answer questions
+	go func() {
+		for question := range questions {
+			go prophecy(question, answers)
+		}
+	}()
+
+	// Make prophecies.
+	go func() {
+		words := []string{
+			"",
+			"Oceans",
+			"Earth",
+			"Shining moonlight",
+			"The Universe",
+			"People",
+		}
+		for {
+			time.Sleep(time.Duration(15+rand.Intn(15)) * time.Second)
+			prophecy(words[rand.Intn(len(words))], answers)
+		}
+	}()
+
+	// Print answers
+	go func() {
+		for ans := range answers {
+			fmt.Printf("%s: %s\n", star, ans)
+		}
+	}()
+
 	return questions
 }
 
